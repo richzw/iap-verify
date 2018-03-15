@@ -1,0 +1,8 @@
+{
+	"amazon": {
+		"SandBoxHost": "http://localhost:8080/RVSSandbox",
+		"IsSandbox": true,
+		"Secret": "testsecret",
+		"ConnectTimeout": 5
+	}
+}
