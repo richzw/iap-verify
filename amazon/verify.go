@@ -11,44 +11,30 @@ import (
 
 // doc: https://developer.amazon.com/docs/in-app-purchasing/iap-rvs-for-android-apps.html
 const (
+	SandboxHost    string = "http://localhost:8080/RVSSandbox"
 	ProductionHost string = "https://appstore-sdk.amazon.com/"
 )
 
 type Config struct {
-	IsSandbox		bool	`json:"IsSandbox"`
-	SandboxHost		string	`json:"SandboxHost"`
-	Secret			string	`json:"Secret"`
-	ConnectTimeout	int64	`json:"ConnectTimeout"`
-}
-
-var InitErr error
-var conf Config
-
-func init() {
-	pwd, _ := os.Getwd()
-	file, _ := os.Open(pwd + "../config.json")
-	defer file.Close()
-
-	decoder := json.NewDecoder(file)
-	err := decoder.decode(&conf)
-	if err != nil {
-		InitErr = "Failed to Load Config File. Err: " + err
-	}
+	IsSandbox      bool
+	SandboxHost    string
+	Secret         string
+	ConnectTimeout int64
 }
 
 type Response struct {
-	BetaProduct		bool	`json:"betaProduct"`
-	CancelDate 		*int64	`json:"cancelDate,omitempty"`
-	ParentProductId *string	`json:"parentProductId,omitempty"`
-	ProductId 		string	`json:"productId"`
-	ProductType 	string	`json:"productType"`
-	PurchaseDate 	int64	`json:"purchaseDate"`
-	Quantity 		*int 	`json:"quantity,omitempty"`
-	ReceiptId 		string 	`json:"receiptId"`
-	RenewalDate 	*int64 	`json:"renewalDate,omitempty"`
-	Term 			*string	`json:"term,omitempty"`
-	TermSku 		*string	`json:"termSku,omitempty"`
-	TestTransaction string	`json:"testTransaction"`
+	BetaProduct     bool    `json:"betaProduct"`
+	CancelDate      *int64  `json:"cancelDate,omitempty"`
+	ParentProductId *string `json:"parentProductId,omitempty"`
+	ProductId       string  `json:"productId"`
+	ProductType     string  `json:"productType"`
+	PurchaseDate    int64   `json:"purchaseDate"`
+	Quantity        *int    `json:"quantity,omitempty"`
+	ReceiptId       string  `json:"receiptId"`
+	RenewalDate     *int64  `json:"renewalDate,omitempty"`
+	Term            *string `json:"term,omitempty"`
+	TermSku         *string `json:"termSku,omitempty"`
+	TestTransaction string  `json:"testTransaction"`
 }
 
 // type ErrorResponse struct {
@@ -56,35 +42,35 @@ type Response struct {
 // 	Status  	bool   `json:"status"`
 // }
 
-type IAP struct {
-	Host			string
-	Secret			string
-	ConnectTimeout 	time.Duration
+type AmazonIAP struct {
+	Host           string
+	Secret         string
+	ConnectTimeout time.Duration
 }
 
-func New(conf Config) (IAP, error ) {
-	if InitErr {
-		return nil, errors.New(InitErr)
+func New(conf Config) (AmazonIAP, error) {
+	if (Config{}) == conf {
+		return nil, errors.New("Amazon New: Invalid Config")
 	}
 
 	if conf.ConnectTimeout == 0 {
 		conf.ConnectTimeout = 5
 	}
 
-	iap := IAP {
-		Host: ProductionHost,
-		Secret: conf.Secret,
+	iap := AmazonIAP{
+		Host:           ProductionHost,
+		Secret:         conf.Secret,
 		ConnectTimeout: conf.ConnectTimeout * time.Second,
 	}
 
 	if conf.IsSandbox {
-		iap.Host = conf.SandboxHost
+		iap.Host = SandboxHost
 	}
 
 	return iap, nil
 }
 
-func (iap *IAP) Verify(userId string, receiptId string) (IAPResponse, error) {
+func (iap *AmazonIAP) Verify(userId string, receiptId string) (IAPResponse, error) {
 	resp := Response{}
 	url := fmt.Sprintf("%v/version/1.0/verifyReceiptId/developer/%v/user/%v/receiptId/%v", iap.Host, iap.Secret, userId, receiptId)
 
@@ -106,7 +92,7 @@ func (iap *IAP) Verify(userId string, receiptId string) (IAPResponse, error) {
 	return resp, err
 }
 
-func (iap *IAP) handleError(status int) error {
+func (iap *AmazonIAP) handleError(status int) error {
 	var message string
 
 	switch status {
