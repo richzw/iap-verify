@@ -11,8 +11,9 @@ import (
 )
 
 const (
-	SandboxUrl string = "https://sandbox.itunes.apple.com/verifyReceipt",
+	SandboxUrl string = "https://sandbox.itunes.apple.com/verifyReceipt"
 	ProductionUrl string = "https://buy.itunes.apple.com/verifyReceipt"
+	DefaultConnectTimeout int64 = 5
 )
 
 type Config struct {
@@ -37,7 +38,7 @@ func New(conf Config) (AppleIAP, error) {
 	}
 
 	if conf.ConnectTimeout == 0 {
-		conf.ConnectTimeout = 5
+		conf.ConnectTimeout = DefaultConnectTimeout
 	}
 
 	iap := AmazonIAP {

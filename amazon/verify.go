@@ -11,8 +11,9 @@ import (
 
 // doc: https://developer.amazon.com/docs/in-app-purchasing/iap-rvs-for-android-apps.html
 const (
-	SandboxHost    string = "http://localhost:8080/RVSSandbox"
-	ProductionHost string = "https://appstore-sdk.amazon.com/"
+	SandboxHost           string = "http://localhost:8080/RVSSandbox"
+	ProductionHost        string = "https://appstore-sdk.amazon.com/"
+	DefaultConnectTimeout int64  = 5
 )
 
 type Config struct {
@@ -54,7 +55,7 @@ func New(conf Config) (AmazonIAP, error) {
 	}
 
 	if conf.ConnectTimeout == 0 {
-		conf.ConnectTimeout = 5
+		conf.ConnectTimeout = DefaultConnectTimeout
 	}
 
 	iap := AmazonIAP{
